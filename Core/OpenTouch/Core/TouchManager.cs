@@ -69,6 +69,7 @@ namespace OpenTouch
 
         public static void SetCamera(Camera camera)
         {
+            if (!initialized) Initialize();
             touchCamera = camera;
         }
 
