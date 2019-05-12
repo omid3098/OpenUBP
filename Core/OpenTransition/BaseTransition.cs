@@ -1,7 +1,7 @@
-﻿using System;
-using DG.Tweening;
+﻿using DG.Tweening;
 using NaughtyAttributes;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace OpenTransition
@@ -29,6 +29,9 @@ namespace OpenTransition
         [ShowIf("AnimationIsNotNone")] [SerializeField] float duration = 0.3f;
         [ShowIf("AnimationIsNotNone")] [SerializeField] float delay = 0f;
         [ShowIf("AnimationIsNotNone")] [SerializeField] Ease easeType = Ease.OutQuart;
+        [ShowIf("AnimationIsNotNone")] [SerializeField] bool useEvents = false;
+        [ShowIf("useEvents")] [SerializeField] public UnityEvent onStart = new UnityEvent();
+        [ShowIf("useEvents")] [SerializeField] public UnityEvent onComplete = new UnityEvent();
         [MinValue(-1)] [ShowIf("AnimationIsNotNone")] [SerializeField] int loopCount = 1;
         private bool InfiniteLoop() { return (loopCount == -1 || loopCount > 1); }
         [ShowIf("InfiniteLoop")] [SerializeField] LoopType loopType = LoopType.Restart;
@@ -59,20 +62,32 @@ namespace OpenTransition
 
         // Alpha
         private bool AlphaSelected() { return (animationType == AnimationType.AlphaTo || animationType == AnimationType.AlphaFrom); }
-        private bool AlphaImageSelected() { return ((animationType == AnimationType.AlphaTo || animationType == AnimationType.AlphaFrom) && (targetAlphaSpriteRenderer == null && targetAlphaMaterial == null)); }
-        private bool AlphaSpriteRendererSelected() { return ((animationType == AnimationType.AlphaTo || animationType == AnimationType.AlphaFrom) && (targetAlphaImage == null && targetAlphaMaterial == null)); }
-        private bool AlphaMaterialSelected() { return ((animationType == AnimationType.AlphaTo || animationType == AnimationType.AlphaFrom) && (targetAlphaImage == null && targetAlphaSpriteRenderer == null)); }
+        private bool AlphaImageSelected() { return ((animationType == AnimationType.AlphaTo || animationType == AnimationType.AlphaFrom) && (targetAlphaSpriteRenderer == null && targetAlphaMaterial == null && targetCanvasGroup == null)); }
+        private bool AlphaSpriteRendererSelected() { return ((animationType == AnimationType.AlphaTo || animationType == AnimationType.AlphaFrom) && (targetAlphaImage == null && targetAlphaMaterial == null && targetCanvasGroup == null)); }
+        private bool AlphaMaterialSelected() { return ((animationType == AnimationType.AlphaTo || animationType == AnimationType.AlphaFrom) && (targetAlphaImage == null && targetAlphaSpriteRenderer == null && targetCanvasGroup == null)); }
+        private bool CavasGroupSelected() { return ((animationType == AnimationType.AlphaTo || animationType == AnimationType.AlphaFrom) && (targetAlphaImage == null && targetAlphaSpriteRenderer == null && targetAlphaMaterial == null)); }
         [ShowIf("AlphaSelected")] [SerializeField] float targetAlpha = 0f;
         [InfoBox("Fill one of these slots", InfoBoxType.Error, "AlphaFiledsSetup")] [ShowIf("AlphaImageSelected")] [SerializeField] Image targetAlphaImage = null;
         [ShowIf("AlphaSpriteRendererSelected")] [SerializeField] SpriteRenderer targetAlphaSpriteRenderer = null;
         [ShowIf("AlphaMaterialSelected")] [SerializeField] Material targetAlphaMaterial = null;
+        [ShowIf("CavasGroupSelected")] [SerializeField] CanvasGroup targetCanvasGroup = null;
         bool AlphaFiledsSetup() { return (targetAlphaImage == null && targetAlphaSpriteRenderer == null && targetAlphaMaterial == null); }
 
         private Tweener tween;
 
-        private void Awake()
+        private void OnEnable()
         {
             if (autoPlay) Play();
+        }
+
+        public void SetAutoPlay(bool state)
+        {
+            autoPlay = state;
+        }
+
+        public void SetUseEvents(bool state)
+        {
+            useEvents = state;
         }
 
         public void Play()
@@ -111,11 +126,30 @@ namespace OpenTransition
             PostTween();
         }
 
+        public void Pause()
+        {
+            tween.Pause();
+        }
+        public void Resume()
+        {
+            tween.Play();
+        }
+
+        public void Complete()
+        {
+            tween.Complete();
+        }
+
         private void PostTween()
         {
             tween.SetEase(easeType);
             tween.SetLoops(loopCount, loopType);
             tween.SetDelay(delay);
+            if (useEvents)
+            {
+                tween.OnStart(() => { if (onStart != null) onStart.Invoke(); });
+                tween.onComplete += () => { if (onComplete != null) onComplete.Invoke(); };
+            }
         }
 
         void MoveToTween()
@@ -236,6 +270,15 @@ namespace OpenTransition
                     targetAlphaMaterial.color = new Color(targetAlphaMaterial.color.r, targetAlphaMaterial.color.g, targetAlphaMaterial.color.b, targetAlpha);
                 }
                 tween = targetAlphaMaterial.DOFade(finalTarget, duration);
+            }
+            else if (targetCanvasGroup != null)
+            {
+                if (animationType == AnimationType.AlphaFrom)
+                {
+                    finalTarget = targetCanvasGroup.alpha;
+                    targetCanvasGroup.alpha = targetAlpha;
+                }
+                tween = targetCanvasGroup.DOFade(finalTarget, duration);
             }
         }
     }
