@@ -46,6 +46,19 @@ Preset:
     value: 24
     objectReference: {fileID: 0}
   - target: {fileID: 0}
+    propertyPath: useEvents
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: onStart.m_PersistentCalls.m_Calls.Array.size
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: onStart.m_TypeName
+    value: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
     propertyPath: onComplete.m_PersistentCalls.m_Calls.Array.size
     value: 0
     objectReference: {fileID: 0}
@@ -144,5 +157,9 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: targetAlphaMaterial
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: targetCanvasGroup
     value: 
     objectReference: {fileID: 0}

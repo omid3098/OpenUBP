@@ -15,7 +15,7 @@ namespace ScriptableTask
     [CreateAssetMenu(menuName = "Task/Audio", fileName = "AudioTask")]
     public class AudioTask : BaseScriptableTask
     {
-        [SerializeField] AudioClip clip;
+        [SerializeField] AudioClip clip = null;
         [SerializeField] bool loop = false;
         private static List<AudioSource> audioSourcePool = new List<AudioSource>();
         private AudioSource source
@@ -63,6 +63,7 @@ namespace ScriptableTask
                 await Task.Delay(TimeSpan.FromSeconds(delay));
                 source.enabled = false;
                 _source = null;
+                if (OnComplete != null) OnComplete.Invoke();
             }
             catch { throw; }
         }

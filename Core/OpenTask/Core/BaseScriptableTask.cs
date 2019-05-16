@@ -1,20 +1,9 @@
-﻿using UnityEngine;
+﻿using NaughtyAttributes;
+using UnityEngine;
 using UnityEngine.Events;
 
 namespace ScriptableTask
 {
-    public interface ITask
-    {
-        void Start();
-        void Stop();
-        void Pause();
-        void Update();
-        UnityEvent OnStart { get; set; }
-        UnityEvent OnStop { get; set; }
-        UnityEvent OnPause { get; set; }
-        UnityEvent OnUpdate { get; set; }
-        UnityEvent OnComplete { get; set; }
-    }
     public abstract class BaseScriptableTask : ScriptableObject, ITask
     {
         public UnityEvent OnStart { get; set; }
@@ -22,10 +11,13 @@ namespace ScriptableTask
         public UnityEvent OnPause { get; set; }
         public UnityEvent OnUpdate { get; set; }
         public UnityEvent OnComplete { get; set; }
+        public UnityEvent OnResume { get; set; }
+        public bool autoPlay { get; set; }
+        public GameObject self { get { Debug.LogError("Scriptable Tasks does not support deactiveGameObjectOnStart"); return null; } set { } }
 
-        public abstract void Pause();
         public abstract void Start();
         public abstract void Stop();
+        public abstract void Pause();
         public abstract void Update();
     }
 }
